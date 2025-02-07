@@ -12,11 +12,17 @@ telemetry, err := acctelemetry.AccTelemetry()
 
 Then it is possible to get actual data with:
 ```go
+// These methods returns copy of the struct, so now it's yours.
 telemetry.ReadStatic()
 telemetry.ReadPhysics()
 telemetry.ReadGraphic()
+
+// These methods returns direct pointer to the memory so underlying struct will change over time, use with caution.
+telemetry.ReadStaticUnsafe()
+telemetry.ReadPhysicsUnsafe()
+telemetry.ReadGraphicUnsafe()
 ```
-These methods returns copy of the struct, so now it's yours.
+
 
 Repetitive polling is up to the consumer.
 

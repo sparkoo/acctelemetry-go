@@ -1,4 +1,4 @@
-package types
+package acctelemetry
 
 type AccGraphic struct {
 	PacketID                 int32

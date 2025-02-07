@@ -1,4 +1,4 @@
-package mmap
+package acctelemetry
 
 import (
 	"fmt"
@@ -8,14 +8,14 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-type MMap struct {
+type mmap struct {
 	kernel32 *syscall.LazyDLL
 	hMap     uintptr
 	addr     uintptr
 }
 
-func MapFile(fileName string, sharedMemorySize uintptr) (*MMap, error) {
-	mmap := &MMap{kernel32: syscall.NewLazyDLL("kernel32.dll")}
+func mapFile(fileName string, sharedMemorySize uintptr) (*mmap, error) {
+	mmap := &mmap{kernel32: syscall.NewLazyDLL("kernel32.dll")}
 
 	// Open shared memory with read access
 	openFileMapping := mmap.kernel32.NewProc("OpenFileMappingW")
@@ -49,11 +49,11 @@ func MapFile(fileName string, sharedMemorySize uintptr) (*MMap, error) {
 	return mmap, nil
 }
 
-func (m *MMap) Pointer() unsafe.Pointer {
+func (m *mmap) pointer() unsafe.Pointer {
 	return unsafe.Pointer(m.addr)
 }
 
-func (m *MMap) Close() error {
+func (m *mmap) Close() error {
 	unmapViewOfFile := m.kernel32.NewProc("UnmapViewOfFile")
 	syscall.CloseHandle(syscall.Handle(m.hMap))
 	unmapViewOfFile.Call(m.addr)

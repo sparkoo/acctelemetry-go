@@ -1,4 +1,4 @@
-package types
+package acctelemetry
 
 type AccPhysics struct {
 	PacketID            int32

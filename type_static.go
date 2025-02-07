@@ -1,4 +1,4 @@
-package types
+package acctelemetry
 
 type AccStatic struct {
 	SmVersion              [15]uint16
