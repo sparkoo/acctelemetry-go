@@ -6,27 +6,8 @@ Runs only on Windows!
 ## How to use
 
 First ACC must be running. Otherwise, it creating the `telemetry` will fail with error.
-```go 
-telemetry, err := acctelemetry.AccTelemetry()
-```
 
-Then it is possible to get actual data with:
-```go
-// These methods returns copy of the struct, so now it's yours.
-telemetry.ReadStatic()
-telemetry.ReadPhysics()
-telemetry.ReadGraphic()
-
-// These methods returns direct pointer to the memory so underlying struct will change over time, use with caution.
-telemetry.ReadStaticUnsafe()
-telemetry.ReadPhysicsUnsafe()
-telemetry.ReadGraphicUnsafe()
-```
-
-
-Repetitive polling is up to the consumer.
-
-## Full example:
+### Example:
 ```go
 func main() {
   telemetry, err := acctelemetry.AccTelemetry()
@@ -35,8 +16,8 @@ func main() {
     t.Error(fmt.Errorf("failed to create the telemetry: %w", err))
   }
 
-  fmt.Printf("%+v\n\n", telemetry.ReadStatic())
-  fmt.Printf("%+v\n\n", telemetry.ReadPhysics())
-  fmt.Printf("%+v\n\n", telemetry.ReadGraphic())
+  fmt.Printf("%+v\n\n", telemetry.StaticPointer())
+  fmt.Printf("%+v\n\n", telemetry.PhysicsPointer())
+  fmt.Printf("%+v\n\n", telemetry.GraphicsPointer())
 }
 ```

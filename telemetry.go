@@ -65,33 +65,18 @@ func AccTelemetry() (*accTelemetry, error) {
 	}, nil
 }
 
-func (t *accTelemetry) ReadGraphic() *AccGraphic {
-	data := *t.graphicsData.data
-	return &data
-}
-
-func (t *accTelemetry) ReadStatic() *AccStatic {
-	data := *t.staticData.data
-	return &data
-}
-
-func (t *accTelemetry) ReadPhysics() *AccPhysics {
-	data := *t.physicsData.data
-	return &data
-}
-
 // this returns direct pointer to the memory so underlying struct will change over time
-func (t *accTelemetry) ReadGraphicUnsafe() *AccGraphic {
+func (t *accTelemetry) GraphicsPointer() *AccGraphic {
 	return t.graphicsData.data
 }
 
 // this returns direct pointer to the memory so underlying struct will change over time
-func (t *accTelemetry) ReadStaticUnsafe() *AccStatic {
+func (t *accTelemetry) StaticPointer() *AccStatic {
 	return t.staticData.data
 }
 
 // this returns direct pointer to the memory so underlying struct will change over time
-func (t *accTelemetry) ReadPhysicsUnsafe() *AccPhysics {
+func (t *accTelemetry) PhysicsPointer() *AccPhysics {
 	return t.physicsData.data
 }
 
