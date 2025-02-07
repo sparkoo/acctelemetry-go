@@ -94,6 +94,18 @@ func (t *accTelemetry) SubscribeStatic(pollRate time.Duration, callback func(*ty
 	t.staticData.subscribe(callback, pollRate)
 }
 
+func (t *accTelemetry) ReadGraphic() *types.AccGraphic {
+	return t.graphicsData.data
+}
+
+func (t *accTelemetry) ReadStatic() *types.AccStatic {
+	return t.staticData.data
+}
+
+func (t *accTelemetry) ReadPhysics() *types.AccPhysics {
+	return t.physicsData.data
+}
+
 func (t *accTelemetry) Close() error {
 	t.graphicsData.Close()
 	t.staticData.Close()

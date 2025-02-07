@@ -1,15 +1,15 @@
 package types
 
 type AccStatic struct {
-	SmVersion              [15]rune
-	AcVersion              [15]rune
+	SmVersion              [15]uint16
+	AcVersion              [15]uint16
 	NumberOfSessions       int32
 	NumCars                int32
-	CarModel               [33]rune
-	Track                  [33]rune
-	PlayerName             [33]rune
-	PlayerSurname          [33]rune
-	PlayerNick             [33]rune
+	CarModel               [33]uint16
+	Track                  [33]uint16
+	PlayerName             [33]uint16
+	PlayerSurname          [33]uint16
+	PlayerNick             [33]uint16
 	SectorCount            int32
 	MaxTorque              float32
 	MaxPower               float32
@@ -35,11 +35,11 @@ type AccStatic struct {
 	EngineBrakeSettingsCnt int32
 	ErsPowerControllerCnt  int32
 	TrackSplineLength      float32
-	TrackConfiguration     [33]rune
+	TrackConfiguration     [33]uint16
 	ErsMaxJ                float32
 	IsTimedRace            int32
 	HasExtraLap            int32
-	CarSkin                [33]rune
+	CarSkin                [33]uint16
 	ReversedGridPositions  int32
 	PitWindowStart         int32
 	PitWindowEnd           int32

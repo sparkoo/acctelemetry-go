@@ -7,70 +7,70 @@ type AccPhysics struct {
 	Fuel                float32
 	Gear                int32
 	RPMs                int32
-	SteerAngle          float64
-	SpeedKmh            float64
-	Velocity            [3]float64
-	AccG                [3]float64
-	WheelSlip           [4]float64
-	WheelLoad           [4]float64
-	WheelsPressure      [4]float64
-	WheelAngularSpeed   [4]float64
-	TyreWear            [4]float64
-	TyreDirtyLevel      [4]float64
-	TyreCoreTemperature [4]float64
-	CamberRAD           [4]float64
-	SuspensionTravel    [4]float64
-	DRS                 float64
-	TC                  float64
-	Heading             float64
-	Pitch               float64
-	Roll                float64
-	CGHeight            float64
-	CarDamage           [5]float64
+	SteerAngle          float32
+	SpeedKmh            float32
+	Velocity            [3]float32
+	AccG                [3]float32
+	WheelSlip           [4]float32
+	WheelLoad           [4]float32
+	WheelsPressure      [4]float32
+	WheelAngularSpeed   [4]float32
+	TyreWear            [4]float32
+	TyreDirtyLevel      [4]float32
+	TyreCoreTemperature [4]float32
+	CamberRAD           [4]float32
+	SuspensionTravel    [4]float32
+	DRS                 float32
+	TC                  float32
+	Heading             float32
+	Pitch               float32
+	Roll                float32
+	CGHeight            float32
+	CarDamage           [5]float32
 	NumberOfTyresOut    int32
 	PitLimiterOn        int32
-	ABS                 float64
-	KersCharge          float64
-	KersInput           float64
+	ABS                 float32
+	KersCharge          float32
+	KersInput           float32
 	AutoShifterOn       int32
-	RideHeight          [2]float64
-	TurboBoost          float64
-	Ballast             float64
-	AirDensity          float64
-	AirTemp             float64
-	RoadTemp            float64
-	LocalAngularVel     [3]float64
-	FinalFF             float64
-	PerformanceMeter    float64
+	RideHeight          [2]float32
+	TurboBoost          float32
+	Ballast             float32
+	AirDensity          float32
+	AirTemp             float32
+	RoadTemp            float32
+	LocalAngularVel     [3]float32
+	FinalFF             float32
+	PerformanceMeter    float32
 	EngineBrake         int32
 	ERSRecoveryLevel    int32
 	ERSPowerLevel       int32
 	ERSHeatCharging     int32
 	ERSIsCharging       int32
-	KersCurrentKJ       float64
+	KersCurrentKJ       float32
 	DRSAvailable        int32
 	DRSEnabled          int32
-	BrakeTemp           [4]float64
-	Clutch              float64
-	TyreTempI           [4]float64
-	TyreTempM           [4]float64
-	TyreTempO           [4]float64
+	BrakeTemp           [4]float32
+	Clutch              float32
+	TyreTempI           [4]float32
+	TyreTempM           [4]float32
+	TyreTempO           [4]float32
 	IsAIControlled      int32
-	TyreContactPoint    [4][3]float64
-	TyreContactNormal   [4][3]float64
-	TyreContactHeading  [4][3]float64
-	BrakeBias           float64
-	LocalVelocity       [3]float64
+	TyreContactPoint    [4][3]float32
+	TyreContactNormal   [4][3]float32
+	TyreContactHeading  [4][3]float32
+	BrakeBias           float32
+	LocalVelocity       [3]float32
 	P2PActivations      int32
 	P2PStatus           int32
 	CurrentMaxRPM       int32
-	MZ                  [4]float64
-	FX                  [4]float64
-	FY                  [4]float64
-	SlipRatio           [4]float64
-	SlipAngle           [4]float64
+	MZ                  [4]float32
+	FX                  [4]float32
+	FY                  [4]float32
+	SlipRatio           [4]float32
+	SlipAngle           [4]float32
 	TCInAction          int32
 	ABSInAction         int32
-	SuspensionDamage    [4]float64
-	TyreTemp            [4]float64
+	SuspensionDamage    [4]float32
+	TyreTemp            [4]float32
 }

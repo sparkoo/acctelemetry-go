@@ -4,10 +4,10 @@ type AccGraphic struct {
 	PacketID                 int32
 	ACStatus                 int32
 	ACSessionType            int32
-	CurrentTime              [15]rune
-	LastTime                 [15]rune
-	BestTime                 [15]rune
-	Split                    [15]rune
+	CurrentTime              [15]uint16
+	LastTime                 [15]uint16
+	BestTime                 [15]uint16
+	Split                    [15]uint16
 	CompletedLaps            int32
 	Position                 int32
 	ICurrentTime             int32
@@ -19,7 +19,7 @@ type AccGraphic struct {
 	CurrentSectorIndex       int32
 	LastSectorTime           int32
 	NumberOfLaps             int32
-	TyreCompound             [33]rune
+	TyreCompound             [33]uint16
 	ReplayTimeMultiplier     float32
 	NormalizedCarPosition    float32
 	ActiveCars               int32
