@@ -1,0 +1,54 @@
+package types
+
+type AccGraphic struct {
+	PacketID                 int32
+	ACStatus                 int32
+	ACSessionType            int32
+	CurrentTime              [15]rune
+	LastTime                 [15]rune
+	BestTime                 [15]rune
+	Split                    [15]rune
+	CompletedLaps            int32
+	Position                 int32
+	ICurrentTime             int32
+	ILastTime                int32
+	IBestTime                int32
+	SessionTimeLeft          float32
+	DistanceTraveled         float32
+	IsInPit                  int32
+	CurrentSectorIndex       int32
+	LastSectorTime           int32
+	NumberOfLaps             int32
+	TyreCompound             [33]rune
+	ReplayTimeMultiplier     float32
+	NormalizedCarPosition    float32
+	ActiveCars               int32
+	CarCoordinates           [60][3]float32
+	CarID                    [60]int32
+	PlayerCarID              int32
+	PenaltyTime              float32
+	Flag                     int32
+	Penalty                  int32
+	IdealLineOn              int32
+	IsInPitLane              int32
+	SurfaceGrip              float32
+	MandatoryPitDone         int32
+	WindSpeed                float32
+	WindDirection            float32
+	IsSetupMenuVisible       int32
+	MainDisplayIndex         int32
+	SecondaryDisplayIndex    int32
+	TC                       int32
+	TCCut                    int32
+	EngineMap                int32
+	ABS                      int32
+	FuelXLap                 int32
+	RainLights               int32
+	FlashingLights           int32
+	LightsStage              int32
+	ExhaustTemperature       float32
+	WiperLV                  int32
+	DriverStintTotalTimeLeft int32
+	DriverStintTimeLeft      int32
+	RainTypes                int32
+}
