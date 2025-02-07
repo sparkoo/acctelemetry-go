@@ -2,7 +2,6 @@ package acctelemetry
 
 import (
 	"fmt"
-	"time"
 	"unsafe"
 
 	"github.com/sparkoo/acctelemetry-go/pkg/mmap"
@@ -20,29 +19,16 @@ type accTelemetry struct {
 }
 
 type accDataHolder[T types.AccGraphic | types.AccPhysics | types.AccStatic] struct {
-	mmap           *mmap.MMap
-	data           *T
-	callbackTicker *time.Ticker
+	mmap *mmap.MMap
+	data *T
 }
 
 func (d *accDataHolder[T]) Close() error {
-	if d.callbackTicker != nil {
-		d.callbackTicker.Stop()
-	}
 	if d.mmap != nil {
 		d.mmap.Close()
 	}
 	d.data = nil
 	return nil
-}
-
-func (d *accDataHolder[T]) subscribe(callback func(*T), pollRate time.Duration) {
-	d.callbackTicker = time.NewTicker(pollRate)
-	go func() {
-		for range d.callbackTicker.C {
-			callback(d.data)
-		}
-	}()
 }
 
 func AccTelemetry() (*accTelemetry, error) {
@@ -82,28 +68,19 @@ func AccTelemetry() (*accTelemetry, error) {
 	}, nil
 }
 
-func (t *accTelemetry) SubscribeGraphic(pollRate time.Duration, callback func(*types.AccGraphic)) {
-	t.graphicsData.subscribe(callback, pollRate)
-}
-
-func (t *accTelemetry) SubscribePhysics(pollRate time.Duration, callback func(*types.AccPhysics)) {
-	t.physicsData.subscribe(callback, pollRate)
-}
-
-func (t *accTelemetry) SubscribeStatic(pollRate time.Duration, callback func(*types.AccStatic)) {
-	t.staticData.subscribe(callback, pollRate)
-}
-
 func (t *accTelemetry) ReadGraphic() *types.AccGraphic {
-	return t.graphicsData.data
+	data := *t.graphicsData.data
+	return &data
 }
 
 func (t *accTelemetry) ReadStatic() *types.AccStatic {
-	return t.staticData.data
+	data := *t.staticData.data
+	return &data
 }
 
 func (t *accTelemetry) ReadPhysics() *types.AccPhysics {
-	return t.physicsData.data
+	data := *t.physicsData.data
+	return &data
 }
 
 func (t *accTelemetry) Close() error {
