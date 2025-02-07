@@ -15,17 +15,18 @@ func TestTelemetry(t *testing.T) {
 	if err != nil {
 		t.Error(fmt.Errorf("failed to create the telemetry: %w", err))
 	}
-	// telemetry.SubscribeStatic(1*time.Second, func(ag *types.AccStatic) {
-	// 	fmt.Printf("%+v\n\n", ag)
-	// })
 
-	telemetry.SubscribeGraphic(1*time.Second, func(ag *types.AccGraphic) {
-		fmt.Printf("%+v\n\n", ag)
+	telemetry.SubscribeStatic(1*time.Second, func(ag *types.AccStatic) {
+		fmt.Printf("Static data: %+v\n\n", ag)
 	})
 
-	// telemetry.SubscribeStatic(1*time.Second, func(ag *types.AccStatic) {
-	// 	fmt.Printf("%+v\n\n", ag)
-	// })
+	telemetry.SubscribeGraphic(1*time.Second, func(ag *types.AccGraphic) {
+		fmt.Printf("Graphic data: %+v\n\n", ag)
+	})
+
+	telemetry.SubscribePhysics(1*time.Second, func(ag *types.AccPhysics) {
+		fmt.Printf("Physics data: %+v\n\n", ag)
+	})
 
 	time.Sleep(100 * time.Second)
 	fmt.Println("finishing test")
