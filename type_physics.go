@@ -1,5 +1,7 @@
 package acctelemetry
 
+// Order of wheels: FL, FR, RL, RR
+
 type AccPhysics struct {
 	PacketID            int32
 	Gas                 float32
@@ -73,4 +75,17 @@ type AccPhysics struct {
 	ABSInAction         int32
 	SuspensionDamage    [4]float32
 	TyreTemp            [4]float32
+	WaterTemp           float32
+	BrakePressure       [4]float32
+	FrontBrakeCompound  int32
+	RearBrakeCompound   int32
+	PadLife             [4]float32
+	DiscLife            [4]float32
+	Ignition            int32
+	StartEngineOn       int32
+	IsEngineRunning     int32
+	KerbVibration       float32
+	SlipVibrations      float32
+	GVibrations         float32
+	AbsVibrations       float32
 }

@@ -44,4 +44,6 @@ type AccStatic struct {
 	PitWindowStart         int32
 	PitWindowEnd           int32
 	IsOnline               int32
+	DryTyresName           [33]uint16
+	WetTyresName           [33]uint16
 }

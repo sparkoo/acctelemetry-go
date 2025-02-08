@@ -50,5 +50,42 @@ type AccGraphic struct {
 	WiperLV                  int32
 	DriverStintTotalTimeLeft int32
 	DriverStintTimeLeft      int32
-	RainTypes                int32
+	RainTyres                int32
+	SessionIndex             int32
+	UsedFuel                 float32
+	DeltaLapTime             [15]uint16
+	IDeltaLapTime            int32
+	EstimatedLapTime         [15]uint16
+	IEstimatedLapTime        int32
+	IsDeltaPositive          int32
+	ISplit                   int32
+	IsValidLap               int32
+	FuelEstimatedLaps        float32
+	TrackStatus              [33]uint16
+	MissingMandatoryPits     int32
+	Clock                    float32
+	DirectionLightsLeft      int32
+	DirectionLightsRight     int32
+	GlobalYellow             int32
+	GlobalYellow1            int32
+	GlobalYellow2            int32
+	GlobalYellow3            int32
+	GlobalWhite              int32
+	GlobalGreen              int32
+	GlobalChequered          int32
+	GlobalRed                int32
+	MfdTyreSet               int32
+	MfdFuelToAdd             float32
+	MfdTyrePressureLF        float32
+	MfdTyrePressureRF        float32
+	MfdTyrePressureLR        float32
+	MfdTyrePressureRR        float32
+	TrackGripStatus          int32
+	RainIntensity            int32
+	RainIntensityIn10min     int32
+	RainIntensityIn30min     int32
+	CurrentTyreSet           int32
+	StrategyTyreSet          int32
+	GapAhead                 int32
+	GapBehind                int32
 }
