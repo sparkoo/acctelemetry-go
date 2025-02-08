@@ -5,64 +5,52 @@ import (
 	"unsafe"
 )
 
-const PHYSICS_FILE_MMAP = "Local\\acpmf_physics"
 const STATIC_FILE_MMAP = "Local\\acpmf_static"
+const PHYSICS_FILE_MMAP = "Local\\acpmf_physics"
 const GRAPHIS_FILE_MMAP = "Local\\acpmf_graphics"
 
 type accTelemetry struct {
-	graphicsData *accDataHolder[AccGraphic]
 	staticData   *accDataHolder[AccStatic]
 	physicsData  *accDataHolder[AccPhysics]
+	graphicsData *accDataHolder[AccGraphic]
 }
 
-type accDataHolder[T AccGraphic | AccPhysics | AccStatic] struct {
-	mmap *mmap
-	data *T
-}
-
-func (d *accDataHolder[T]) Close() error {
-	if d.mmap != nil {
-		d.Close()
-	}
-	d.data = nil
-	return nil
-}
-
-func AccTelemetry() (*accTelemetry, error) {
-	var accGraphic AccGraphic
-	graphicsMMap, err := mapFile(GRAPHIS_FILE_MMAP, unsafe.Sizeof(accGraphic))
-	if err != nil {
-		return nil, fmt.Errorf("Failed to create mapping to ACC physics file: %w", err)
-	}
-
+func (t *accTelemetry) Connect() error {
 	var accStatic AccStatic
 	staticMMap, err := mapFile(STATIC_FILE_MMAP, unsafe.Sizeof(accStatic))
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create mapping to ACC static file: %w", err)
+		return fmt.Errorf("Failed to create mapping to ACC static file: %w", err)
+	}
+	t.staticData = &accDataHolder[AccStatic]{
+		mmap: staticMMap,
+		data: (*AccStatic)(staticMMap.pointer()),
 	}
 
 	var accPhysics AccPhysics
 	physicsMMap, err := mapFile(PHYSICS_FILE_MMAP, unsafe.Sizeof(accPhysics))
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create mapping to ACC physics file: %w", err)
+		return fmt.Errorf("Failed to create mapping to ACC physics file: %w", err)
+	}
+	t.physicsData = &accDataHolder[AccPhysics]{
+		mmap: physicsMMap,
+		data: (*AccPhysics)(physicsMMap.pointer()),
 	}
 
-	return &accTelemetry{
-		graphicsData: &accDataHolder[AccGraphic]{
-			mmap: graphicsMMap,
-			data: (*AccGraphic)(graphicsMMap.pointer()),
-		},
+	var accGraphic AccGraphic
+	graphicsMMap, err := mapFile(GRAPHIS_FILE_MMAP, unsafe.Sizeof(accGraphic))
+	if err != nil {
+		return fmt.Errorf("Failed to create mapping to ACC physics file: %w", err)
+	}
+	t.graphicsData = &accDataHolder[AccGraphic]{
+		mmap: graphicsMMap,
+		data: (*AccGraphic)(graphicsMMap.pointer()),
+	}
 
-		staticData: &accDataHolder[AccStatic]{
-			mmap: staticMMap,
-			data: (*AccStatic)(staticMMap.pointer()),
-		},
+	return nil
+}
 
-		physicsData: &accDataHolder[AccPhysics]{
-			mmap: physicsMMap,
-			data: (*AccPhysics)(physicsMMap.pointer()),
-		},
-	}, nil
+func AccTelemetry() *accTelemetry {
+	return &accTelemetry{}
 }
 
 // this returns direct pointer to the memory so underlying struct will change over time

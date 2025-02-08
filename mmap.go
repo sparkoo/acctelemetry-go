@@ -9,21 +9,36 @@ import (
 )
 
 type mmap struct {
-	kernel32 *syscall.LazyDLL
-	hMap     uintptr
-	addr     uintptr
+	hMap uintptr
+	addr uintptr
+}
+
+type win struct {
+	openFileMapping *windows.LazyProc
+	mapViewOfFile   *windows.LazyProc
+	unmapViewOfFile *windows.LazyProc
+}
+
+var w = initWindows()
+
+func initWindows() *win {
+	var kernel32 = windows.NewLazyDLL("kernel32.dll")
+	return &win{
+		openFileMapping: kernel32.NewProc("OpenFileMappingW"),
+		mapViewOfFile:   kernel32.NewProc("MapViewOfFile"),
+		unmapViewOfFile: kernel32.NewProc("UnmapViewOfFile"),
+	}
 }
 
 func mapFile(fileName string, sharedMemorySize uintptr) (*mmap, error) {
-	mmap := &mmap{kernel32: syscall.NewLazyDLL("kernel32.dll")}
+	mmap := &mmap{}
 
 	// Open shared memory with read access
-	openFileMapping := mmap.kernel32.NewProc("OpenFileMappingW")
 	filePointer, err := syscall.UTF16PtrFromString(fileName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get mmap file pointer '%s': %w", fileName, err)
 	}
-	hMap, _, _ := openFileMapping.Call(
+	hMap, _, _ := w.openFileMapping.Call(
 		windows.FILE_MAP_READ,
 		0, uintptr(unsafe.Pointer(filePointer)),
 	)
@@ -34,8 +49,7 @@ func mapFile(fileName string, sharedMemorySize uintptr) (*mmap, error) {
 	mmap.hMap = hMap
 
 	// Map view of the file
-	mapViewOfFile := mmap.kernel32.NewProc("MapViewOfFile")
-	addr, _, _ := mapViewOfFile.Call(
+	addr, _, _ := w.mapViewOfFile.Call(
 		hMap,
 		windows.FILE_MAP_READ,
 		0, 0, sharedMemorySize,
@@ -54,8 +68,7 @@ func (m *mmap) pointer() unsafe.Pointer {
 }
 
 func (m *mmap) Close() error {
-	unmapViewOfFile := m.kernel32.NewProc("UnmapViewOfFile")
 	syscall.CloseHandle(syscall.Handle(m.hMap))
-	unmapViewOfFile.Call(m.addr)
+	w.unmapViewOfFile.Call(m.addr)
 	return nil
 }

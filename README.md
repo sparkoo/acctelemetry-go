@@ -10,11 +10,11 @@ First ACC must be running. Otherwise, it creating the `telemetry` will fail with
 ### Example:
 ```go
 func main() {
-  telemetry, err := acctelemetry.AccTelemetry()
-  defer telemetry.Close()
-  if err != nil {
-    t.Error(fmt.Errorf("failed to create the telemetry: %w", err))
-  }
+  telemetry := acctelemetry.AccTelemetry()
+	err := telemetry.Connect()
+	if err != nil {
+		t.Error(fmt.Errorf("unable to connect to ACC: %w", err))
+	}
 
   fmt.Printf("%+v\n\n", telemetry.StaticPointer())
   fmt.Printf("%+v\n\n", telemetry.PhysicsPointer())
