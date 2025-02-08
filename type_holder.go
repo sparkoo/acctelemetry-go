@@ -7,7 +7,7 @@ type accDataHolder[T AccGraphic | AccPhysics | AccStatic] struct {
 
 func (d *accDataHolder[T]) Close() error {
 	if d.mmap != nil {
-		d.Close()
+		d.mmap.Close()
 	}
 	d.data = nil
 	return nil
