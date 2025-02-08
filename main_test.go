@@ -9,7 +9,7 @@ import (
 )
 
 func TestTelemetry(t *testing.T) {
-	telemetry := acctelemetry.AccTelemetry()
+	telemetry := acctelemetry.New()
 	err := telemetry.Connect()
 	if err != nil {
 		t.Error(fmt.Errorf("unable to connect to ACC: %w", err))

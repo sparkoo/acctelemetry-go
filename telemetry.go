@@ -9,7 +9,7 @@ const STATIC_FILE_MMAP = "Local\\acpmf_static"
 const PHYSICS_FILE_MMAP = "Local\\acpmf_physics"
 const GRAPHIS_FILE_MMAP = "Local\\acpmf_graphics"
 
-type accTelemetry struct {
+type AccTelemetry struct {
 	staticData   *accDataHolder[AccStatic]
 	physicsData  *accDataHolder[AccPhysics]
 	graphicsData *accDataHolder[AccGraphic]
@@ -29,7 +29,7 @@ func (d *accDataHolder[T]) Close() error {
 	return nil
 }
 
-func (t *accTelemetry) Connect() error {
+func (t *AccTelemetry) Connect() error {
 	var accStatic AccStatic
 	staticMMap, err := mapFile(STATIC_FILE_MMAP, unsafe.Sizeof(accStatic))
 	if err != nil {
@@ -63,26 +63,26 @@ func (t *accTelemetry) Connect() error {
 	return nil
 }
 
-func AccTelemetry() *accTelemetry {
-	return &accTelemetry{}
+func New() *AccTelemetry {
+	return &AccTelemetry{}
 }
 
 // this returns direct pointer to the memory so underlying struct will change over time
-func (t *accTelemetry) GraphicsPointer() *AccGraphic {
+func (t *AccTelemetry) GraphicsPointer() *AccGraphic {
 	return t.graphicsData.data
 }
 
 // this returns direct pointer to the memory so underlying struct will change over time
-func (t *accTelemetry) StaticPointer() *AccStatic {
+func (t *AccTelemetry) StaticPointer() *AccStatic {
 	return t.staticData.data
 }
 
 // this returns direct pointer to the memory so underlying struct will change over time
-func (t *accTelemetry) PhysicsPointer() *AccPhysics {
+func (t *AccTelemetry) PhysicsPointer() *AccPhysics {
 	return t.physicsData.data
 }
 
-func (t *accTelemetry) Close() error {
+func (t *AccTelemetry) Close() error {
 	t.graphicsData.Close()
 	t.staticData.Close()
 	t.physicsData.Close()
