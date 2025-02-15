@@ -69,17 +69,26 @@ func New() *AccTelemetry {
 
 // this returns direct pointer to the memory so underlying struct will change over time
 func (t *AccTelemetry) GraphicsPointer() *AccGraphic {
-	return t.graphicsData.data
+	if t.graphicsData != nil {
+		return t.graphicsData.data
+	}
+	return nil
 }
 
 // this returns direct pointer to the memory so underlying struct will change over time
 func (t *AccTelemetry) StaticPointer() *AccStatic {
-	return t.staticData.data
+	if t.staticData != nil {
+		return t.staticData.data
+	}
+	return nil
 }
 
 // this returns direct pointer to the memory so underlying struct will change over time
 func (t *AccTelemetry) PhysicsPointer() *AccPhysics {
-	return t.physicsData.data
+	if t.physicsData != nil {
+		return t.physicsData.data
+	}
+	return nil
 }
 
 func (t *AccTelemetry) Close() error {
