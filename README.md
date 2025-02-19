@@ -5,18 +5,18 @@ Runs only on Windows!
 
 ## How to use
 
-ACC must be running. Otherwise, creating the `telemetry` will fail with error.
+ACC must be running. Otherwise, `telemetry.Connect()` will fail with an error.
 
 Methods `StaticPointer()`, `PhysicsPointer()` and `GraphicsPointer()` returns pointer to shared memory, so data will change over time. It's up to client code to create snapshot of the data if they wish so.
 
 ### Example:
 ```go
 func main() {
-  telemetry := acctelemetry.AccTelemetry()
-	err := telemetry.Connect()
-	if err != nil {
-		t.Error(fmt.Errorf("unable to connect to ACC: %w", err))
-	}
+  telemetry := acctelemetry.New()
+  err := telemetry.Connect()
+  if err != nil {
+    t.Error(fmt.Errorf("unable to connect to ACC: %w", err))
+  }
 
   // we can run this in loop
   ticker := time.NewTicker(1 * time.Second)
