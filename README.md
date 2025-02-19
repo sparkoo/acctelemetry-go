@@ -5,7 +5,9 @@ Runs only on Windows!
 
 ## How to use
 
-First ACC must be running. Otherwise, it creating the `telemetry` will fail with error.
+ACC must be running. Otherwise, creating the `telemetry` will fail with error.
+
+Methods `StaticPointer()`, `PhysicsPointer()` and `GraphicsPointer()` returns pointer to shared memory, so data will change over time. It's up to client code to create snapshot of the data if they wish so.
 
 ### Example:
 ```go
@@ -16,8 +18,12 @@ func main() {
 		t.Error(fmt.Errorf("unable to connect to ACC: %w", err))
 	}
 
-  fmt.Printf("%+v\n\n", telemetry.StaticPointer())
-  fmt.Printf("%+v\n\n", telemetry.PhysicsPointer())
-  fmt.Printf("%+v\n\n", telemetry.GraphicsPointer())
+  // we can run this in loop
+  ticker := time.NewTicker(1 * time.Second)
+  for _ = range ticker.C {
+    fmt.Printf("%+v\n\n", telemetry.StaticPointer())
+    fmt.Printf("%+v\n\n", telemetry.PhysicsPointer())
+    fmt.Printf("%+v\n\n", telemetry.GraphicsPointer())
+  }
 }
 ```
