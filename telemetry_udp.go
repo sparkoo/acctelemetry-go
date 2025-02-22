@@ -190,6 +190,9 @@ func (t *AccTelemetry) readMessage(payload []byte) error {
 	switch messageType {
 	case REALTIME_CAR_UPDATE:
 		updateRealtimeCarUpdate(buffer, t.realtimeCarUpdate)
+	case REALTIME_UPDATE:
+		// silently drop this one
+		break
 	default:
 		return fmt.Errorf("we don't currently support this type of message: '%d' => %+v", messageType, payload)
 	}
