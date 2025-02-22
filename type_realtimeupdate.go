@@ -5,6 +5,6 @@ import "bytes"
 type RealtimeUpdate struct {
 }
 
-func createRealtimeUpdate(payload *bytes.Buffer) *RealtimeUpdate {
+func updateRealtimeUpdate(payload *bytes.Buffer, toUpdate *RealtimeUpdate) *RealtimeUpdate {
 	return &RealtimeUpdate{}
 }

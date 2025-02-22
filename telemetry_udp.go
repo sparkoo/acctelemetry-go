@@ -68,6 +68,8 @@ func (telemetry *accTelemetry) connect() error {
 		}
 	} else {
 		fmt.Println("UDP Connected")
+		telemetry.realtimeCarUpdate = &RealtimeCarUpdate{}
+		telemetry.realtimeUpdate = &RealtimeUpdate{}
 	}
 
 	connectionResult, err := readConnectionResult(bytes.NewBuffer(inBuffer))
@@ -209,9 +211,9 @@ func (t *accTelemetry) readMessage(payload []byte) error {
 	}
 	switch messageType {
 	case REALTIME_UPDATE:
-		t.realtimeUpdate = createRealtimeUpdate(buffer)
+		updateRealtimeUpdate(buffer, t.realtimeUpdate)
 	case REALTIME_CAR_UPDATE:
-		t.realtimeCarUpdate = createRealtimeCarUpdate(buffer)
+		updateRealtimeCarUpdate(buffer, t.realtimeCarUpdate)
 	default:
 		return fmt.Errorf("received unexpected message type: '%d' => %+v", messageType, payload)
 	}
