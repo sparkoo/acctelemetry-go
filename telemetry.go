@@ -187,6 +187,7 @@ func (t *AccTelemetry) Close() error {
 		if err := t.udpConnection.Close(); err != nil {
 			fmt.Println("failed to close the connection: ", err)
 		}
+		t.udpConnection = nil
 	}
 
 	return nil
