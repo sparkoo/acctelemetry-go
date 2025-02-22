@@ -43,7 +43,7 @@ type connectionResult struct {
 	errorMessage      string
 }
 
-func (telemetry *accTelemetry) connect() error {
+func (telemetry *AccTelemetry) connect() error {
 	connectMessage, err := telemetry.createConnectMessage()
 	if err != nil {
 		return fmt.Errorf("failed to craete connect message: %w", err)
@@ -111,7 +111,7 @@ func (telemetry *accTelemetry) connect() error {
 	return nil
 }
 
-func (telemetry *accTelemetry) createConnectMessage() ([]byte, error) {
+func (telemetry *AccTelemetry) createConnectMessage() ([]byte, error) {
 	outBuffer := bytes.NewBuffer([]byte{})
 	var writeErr error
 	writeErr = outBuffer.WriteByte(REGISTER_COMMAND_APPLICATION)
@@ -181,7 +181,7 @@ func readConnectionResult(payload *bytes.Buffer) (*connectionResult, error) {
 	return result, nil
 }
 
-func (t *accTelemetry) readMessage(payload []byte) error {
+func (t *AccTelemetry) readMessage(payload []byte) error {
 	buffer := bytes.NewBuffer(payload)
 	messageType, err := buffer.ReadByte()
 	if err != nil {

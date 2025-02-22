@@ -42,7 +42,7 @@ func UdpConfig(ipPort string, password string) *AccTelemetryConfig {
 	}
 }
 
-type accTelemetry struct {
+type AccTelemetry struct {
 	config *AccTelemetryConfig
 
 	staticData   *accDataHolder[AccStatic]
@@ -68,7 +68,7 @@ func (d *accDataHolder[T]) Close() error {
 	return nil
 }
 
-func (t *accTelemetry) Connect() error {
+func (t *AccTelemetry) Connect() error {
 	if t.config.EnableUdp {
 		udpErr := t.connectUdp()
 		if udpErr != nil {
@@ -109,7 +109,7 @@ func (t *accTelemetry) Connect() error {
 	return nil
 }
 
-func (telemetry *accTelemetry) connectUdp() error {
+func (telemetry *AccTelemetry) connectUdp() error {
 	udpAddress, err := net.ResolveUDPAddr("udp", telemetry.config.UdpIpPort)
 	if err != nil {
 		return fmt.Errorf("failed to resolve UDP address '%s': %w", telemetry.config.UdpIpPort, err)
@@ -127,14 +127,14 @@ func (telemetry *accTelemetry) connectUdp() error {
 	return nil
 }
 
-func New(config *AccTelemetryConfig) *accTelemetry {
-	return &accTelemetry{
+func New(config *AccTelemetryConfig) *AccTelemetry {
+	return &AccTelemetry{
 		config: config,
 	}
 }
 
 // this returns direct pointer to the memory so underlying struct will change over time
-func (t *accTelemetry) GraphicsPointer() *AccGraphic {
+func (t *AccTelemetry) GraphicsPointer() *AccGraphic {
 	if t.graphicsData != nil {
 		return t.graphicsData.data
 	}
@@ -142,7 +142,7 @@ func (t *accTelemetry) GraphicsPointer() *AccGraphic {
 }
 
 // this returns direct pointer to the memory so underlying struct will change over time
-func (t *accTelemetry) StaticPointer() *AccStatic {
+func (t *AccTelemetry) StaticPointer() *AccStatic {
 	if t.staticData != nil {
 		return t.staticData.data
 	}
@@ -150,7 +150,7 @@ func (t *accTelemetry) StaticPointer() *AccStatic {
 }
 
 // this returns direct pointer to the memory so underlying struct will change over time
-func (t *accTelemetry) PhysicsPointer() *AccPhysics {
+func (t *AccTelemetry) PhysicsPointer() *AccPhysics {
 	if t.physicsData != nil {
 		return t.physicsData.data
 	}
@@ -162,11 +162,11 @@ func (t *accTelemetry) PhysicsPointer() *AccPhysics {
 // by it's async nature, it's just best effort these data are latest and correct
 // it returns pointer to same struct so it will change over time. It's up to the client to handle this and be careful.
 // it can even be in the middle of updating the struct.
-func (t *accTelemetry) RealtimeCarUpdate() *RealtimeCarUpdate {
+func (t *AccTelemetry) RealtimeCarUpdate() *RealtimeCarUpdate {
 	return t.realtimeCarUpdate
 }
 
-func (t *accTelemetry) Close() error {
+func (t *AccTelemetry) Close() error {
 	if t.graphicsData != nil {
 		t.graphicsData.Close()
 	}
