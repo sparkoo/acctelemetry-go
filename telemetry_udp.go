@@ -43,32 +43,39 @@ type connectionResult struct {
 	errorMessage      string
 }
 
-func (telemetry *AccTelemetry) connect() error {
-	if handshakeErr := telemetry.handshake(); handshakeErr != nil {
+func (t *AccTelemetry) connect() error {
+	if handshakeErr := t.handshake(); handshakeErr != nil {
 		return fmt.Errorf("failed to connect to ACC: %w", handshakeErr)
 	}
 
-	return nil
-}
+	go func() {
+		for {
+			if t.udpConnection != nil {
+				payload := make([]byte, 128)
 
-func (t *AccTelemetry) requestMessage() (*UdpMessage, error) {
-	if t.udpConnection != nil {
-		payload := make([]byte, 128)
-
-		t.udpConnection.SetReadDeadline(time.Now().Add(100 * time.Millisecond))
-		_, _, err := t.udpConnection.ReadFromUDP(payload)
-		if err == nil {
-			return t.createMessage(payload)
-		} else {
-			if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
-				return nil, fmt.Errorf("UDP read timeout, ACC may not be running: %s", netErr)
+				t.udpConnection.SetReadDeadline(time.Now().Add(500 * time.Millisecond))
+				_, _, err := t.udpConnection.ReadFromUDP(payload)
+				if err == nil {
+					realtimeCarUpdate, createMsgErr := t.createMessage(payload)
+					if createMsgErr != nil {
+						fmt.Printf("failed to create realtime car update message: %s", createMsgErr)
+					}
+					t.RealtimeCarUpdate = realtimeCarUpdate
+				} else {
+					if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+						fmt.Printf("UDP read timeout, ACC may not be running: %s", netErr)
+					} else {
+						fmt.Printf("UDP read failed: %s", err)
+					}
+				}
 			} else {
-				return nil, fmt.Errorf("UDP read failed: %s", err)
+				fmt.Printf("UDP connection is not established")
 			}
+			time.Sleep(10 * time.Millisecond)
 		}
-	} else {
-		return nil, fmt.Errorf("UDP connection is not established")
-	}
+	}()
+
+	return nil
 }
 
 func (t *AccTelemetry) handshake() error {
@@ -176,7 +183,7 @@ func readConnectionResult(payload *bytes.Buffer) (*connectionResult, error) {
 	return result, nil
 }
 
-func (t *AccTelemetry) createMessage(payload []byte) (*UdpMessage, error) {
+func (t *AccTelemetry) createMessage(payload []byte) (*RealtimeCarUpdate, error) {
 	buffer := bytes.NewBuffer(payload)
 	messageType, err := buffer.ReadByte()
 
@@ -184,12 +191,9 @@ func (t *AccTelemetry) createMessage(payload []byte) (*UdpMessage, error) {
 		return nil, fmt.Errorf("failed to read message type: %w", err)
 	}
 
-	message := &UdpMessage{
-		MessageType: messageType,
-	}
 	switch messageType {
 	case REALTIME_CAR_UPDATE:
-		message.Message = updateRealtimeCarUpdate(buffer)
+		return updateRealtimeCarUpdate(buffer), nil
 	}
-	return message, nil
+	return nil, nil
 }

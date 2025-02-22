@@ -50,6 +50,8 @@ type AccTelemetry struct {
 	graphicsData *accDataHolder[AccGraphic]
 
 	udpConnection *net.UDPConn
+
+	RealtimeCarUpdate *RealtimeCarUpdate
 }
 
 type accDataHolder[T AccGraphic | AccPhysics | AccStatic] struct {
@@ -155,11 +157,9 @@ func (t *AccTelemetry) PhysicsPointer() *AccPhysics {
 	return nil
 }
 
-// reads from UDP
-// it reads for carIndex update data for given carIndex and calls given callback once it finds it
-// It may take some time
-func (t *AccTelemetry) ReadUdpMessage() (*UdpMessage, error) {
-	return t.requestMessage()
+// returns what is current RealtimeCarUpdate
+func (t *AccTelemetry) ReadUdpMessage() *RealtimeCarUpdate {
+	return t.RealtimeCarUpdate
 }
 
 func (t *AccTelemetry) Close() error {

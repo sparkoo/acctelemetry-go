@@ -4,11 +4,6 @@ import (
 	"bytes"
 )
 
-type UdpMessage struct {
-	MessageType byte
-	Message     interface{}
-}
-
 type RealtimeCarUpdate struct {
 	CarIndex              uint16
 	DriverIndex           uint16
