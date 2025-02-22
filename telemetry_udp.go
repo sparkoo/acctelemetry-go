@@ -68,8 +68,11 @@ func (telemetry *accTelemetry) connect() error {
 		}
 	} else {
 		fmt.Println("UDP Connected")
-		telemetry.realtimeCarUpdate = &RealtimeCarUpdate{}
-		telemetry.realtimeUpdate = &RealtimeUpdate{}
+		telemetry.realtimeCarUpdate = &RealtimeCarUpdate{
+			BestSessionLap: &LapInfo{Splits: [8]int32{}},
+			LastLap:        &LapInfo{Splits: [8]int32{}},
+			CurrentLap:     &LapInfo{Splits: [8]int32{}},
+		}
 	}
 
 	connectionResult, err := readConnectionResult(bytes.NewBuffer(inBuffer))
@@ -125,19 +128,6 @@ func (telemetry *accTelemetry) createConnectMessage() ([]byte, error) {
 	return outBuffer.Bytes(), nil
 }
 
-func writeString(buffer *bytes.Buffer, str string) error {
-	lengthBytes := make([]byte, 2)
-	binary.LittleEndian.PutUint16(lengthBytes, uint16(len(str)))
-
-	var writeErr error
-	_, writeErr = buffer.Write(lengthBytes)
-	_, writeErr = buffer.Write([]byte(str))
-	if writeErr != nil {
-		return fmt.Errorf("failed to write string '%s' to byte buffer: %w", str, writeErr)
-	}
-	return nil
-}
-
 // response format:
 // 1 byte - message type
 // 4 bytes - int32 connectionId
@@ -157,16 +147,9 @@ func readConnectionResult(payload *bytes.Buffer) (*connectionResult, error) {
 	}
 
 	// read connectionId
-	connectionIdBytes := make([]byte, 4)
-	_, err = payload.Read(connectionIdBytes)
+	connectionId, err := readInt32(payload)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read connectionId: %w", err)
-	}
-
-	var connectionId int32
-	err = binary.Read(bytes.NewReader(connectionIdBytes), binary.LittleEndian, &connectionId)
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert connectionId: %w", err)
 	}
 	result.connectionId = connectionId
 
@@ -185,17 +168,12 @@ func readConnectionResult(payload *bytes.Buffer) (*connectionResult, error) {
 	result.readOnly = readonly == 0
 
 	// read error
-	errorLengthBytes := make([]byte, 2)
-	_, err = payload.Read(errorLengthBytes)
+	errorLength, err := readUint16(payload)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read error length: %w", err)
-	}
-	var errorLength uint16
-	err = binary.Read(bytes.NewReader(errorLengthBytes), binary.LittleEndian, &errorLength)
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert errorLength: %w", err)
+		return nil, fmt.Errorf("failed to read error message length: %w", err)
 	}
 
+	//TODO: handle reading error message if this is non zero
 	if errorLength > 0 {
 		result.errorMessage = "some error"
 	}
@@ -210,12 +188,10 @@ func (t *accTelemetry) readMessage(payload []byte) error {
 		return fmt.Errorf("failed to read message type: %w", err)
 	}
 	switch messageType {
-	case REALTIME_UPDATE:
-		updateRealtimeUpdate(buffer, t.realtimeUpdate)
 	case REALTIME_CAR_UPDATE:
 		updateRealtimeCarUpdate(buffer, t.realtimeCarUpdate)
 	default:
-		return fmt.Errorf("received unexpected message type: '%d' => %+v", messageType, payload)
+		return fmt.Errorf("we don't currently support this type of message: '%d' => %+v", messageType, payload)
 	}
 
 	return nil

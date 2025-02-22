@@ -52,7 +52,6 @@ type accTelemetry struct {
 	udpConnection *net.UDPConn
 
 	realtimeCarUpdate *RealtimeCarUpdate
-	realtimeUpdate    *RealtimeUpdate
 }
 
 type accDataHolder[T AccGraphic | AccPhysics | AccStatic] struct {
@@ -159,15 +158,10 @@ func (t *accTelemetry) PhysicsPointer() *AccPhysics {
 }
 
 // reads from UDP
-// returns current state of RealtimeUpdate
-// by it's async nature, it's just best effort these data are latest and correct
-func (t *accTelemetry) RealtimeUpdate() *RealtimeUpdate {
-	return t.realtimeUpdate
-}
-
-// reads from UDP
 // returns current state of RealtimeCarUpdate
 // by it's async nature, it's just best effort these data are latest and correct
+// it returns pointer to same struct so it will change over time. It's up to the client to handle this and be careful.
+// it can even be in the middle of updating the struct.
 func (t *accTelemetry) RealtimeCarUpdate() *RealtimeCarUpdate {
 	return t.realtimeCarUpdate
 }
