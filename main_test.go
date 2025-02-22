@@ -10,6 +10,7 @@ import (
 
 func TestTelemetry(t *testing.T) {
 	telemetry := acctelemetry.New(acctelemetry.DefaultConfig())
+	defer telemetry.Close()
 	err := telemetry.Connect()
 	if err != nil {
 		t.Error(fmt.Errorf("unable to connect to ACC: %w", err))
@@ -28,6 +29,7 @@ func TestTelemetry(t *testing.T) {
 
 func TestUdp(t *testing.T) {
 	telemetry := acctelemetry.New(acctelemetry.DefaultConfig())
+	defer telemetry.Close()
 	if err := telemetry.Connect(); err != nil {
 		fmt.Printf("%+v", err)
 	}

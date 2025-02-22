@@ -141,7 +141,7 @@ func (t *accTelemetry) PhysicsPointer() *AccPhysics {
 
 // reads from UDP
 func (t *accTelemetry) RealtimeUpdate() *RealtimeUpdate {
-
+	return nil
 }
 
 func (t *accTelemetry) Close() error {
@@ -158,6 +158,7 @@ func (t *accTelemetry) Close() error {
 	}
 
 	if t.udpConnection != nil {
+		t.udpConnection.Write([]byte{UNREGISTER_COMMAND_APPLICATION})
 		t.udpConnection.Close()
 	}
 
