@@ -50,26 +50,26 @@ func (t *AccTelemetry) connect() error {
 
 	go func() {
 		for {
-			if t.udpConnection != nil {
-				payload := make([]byte, 128)
+			if t.udpConnection == nil {
+				fmt.Println("no UDP connection, nothing to read. Call connect again.")
+				return
+			}
+			payload := make([]byte, 128)
 
-				t.udpConnection.SetReadDeadline(time.Now().Add(500 * time.Millisecond))
-				_, _, err := t.udpConnection.ReadFromUDP(payload)
-				if err == nil {
-					realtimeCarUpdate, createMsgErr := t.createMessage(payload)
-					if createMsgErr != nil {
-						fmt.Printf("failed to create realtime car update message: %s", createMsgErr)
-					}
-					t.RealtimeCarUpdate = realtimeCarUpdate
-				} else {
-					if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
-						fmt.Printf("UDP read timeout, ACC may not be running: %s", netErr)
-					} else {
-						fmt.Printf("UDP read failed: %s", err)
-					}
+			t.udpConnection.SetReadDeadline(time.Now().Add(500 * time.Millisecond))
+			_, _, err := t.udpConnection.ReadFromUDP(payload)
+			if err == nil {
+				realtimeCarUpdate, createMsgErr := t.createMessage(payload)
+				if createMsgErr != nil {
+					fmt.Printf("failed to create realtime car update message: %s", createMsgErr)
 				}
+				t.RealtimeCarUpdate = realtimeCarUpdate
 			} else {
-				fmt.Printf("UDP connection is not established")
+				if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+					fmt.Printf("UDP read timeout, ACC may not be running: %s", netErr)
+				} else {
+					fmt.Printf("UDP read failed: %s", err)
+				}
 			}
 			time.Sleep(10 * time.Millisecond)
 		}
