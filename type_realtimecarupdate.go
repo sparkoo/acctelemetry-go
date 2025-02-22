@@ -4,6 +4,11 @@ import (
 	"bytes"
 )
 
+type UdpMessage struct {
+	MessageType byte
+	Message     interface{}
+}
+
 type RealtimeCarUpdate struct {
 	CarIndex              uint16
 	DriverIndex           uint16
@@ -37,25 +42,32 @@ type LapInfo struct {
 	IsInlaop       byte
 }
 
-func updateRealtimeCarUpdate(payload *bytes.Buffer, toUpdate *RealtimeCarUpdate) {
-	toUpdate.CarIndex, _ = readUint16(payload)
-	toUpdate.DriverIndex, _ = readUint16(payload)
-	toUpdate.DriverCount, _ = payload.ReadByte()
-	toUpdate.Gear, _ = payload.ReadByte()
-	toUpdate.WorldPosX, _ = readFloat32(payload)
-	toUpdate.WorldPosY, _ = readFloat32(payload)
-	toUpdate.Yaw, _ = readFloat32(payload)
-	toUpdate.CarLocation, _ = payload.ReadByte()
-	toUpdate.Kmh, _ = readUint16(payload)
-	toUpdate.Position, _ = readUint16(payload)
-	toUpdate.CupPosition, _ = readUint16(payload)
-	toUpdate.TrackPosition, _ = readUint16(payload)
-	toUpdate.TrackRelativePosition, _ = readFloat32(payload)
-	toUpdate.Laps, _ = readUint16(payload)
-	toUpdate.Delta, _ = readInt32(payload)
-	updateLap(payload, toUpdate.BestSessionLap)
-	updateLap(payload, toUpdate.LastLap)
-	updateLap(payload, toUpdate.CurrentLap)
+func updateRealtimeCarUpdate(payload *bytes.Buffer) *RealtimeCarUpdate {
+	carUpdate := &RealtimeCarUpdate{
+		BestSessionLap: &LapInfo{Splits: [8]int32{}},
+		LastLap:        &LapInfo{Splits: [8]int32{}},
+		CurrentLap:     &LapInfo{Splits: [8]int32{}},
+	}
+	carUpdate.CarIndex, _ = readUint16(payload)
+	carUpdate.DriverIndex, _ = readUint16(payload)
+	carUpdate.DriverCount, _ = payload.ReadByte()
+	carUpdate.Gear, _ = payload.ReadByte()
+	carUpdate.WorldPosX, _ = readFloat32(payload)
+	carUpdate.WorldPosY, _ = readFloat32(payload)
+	carUpdate.Yaw, _ = readFloat32(payload)
+	carUpdate.CarLocation, _ = payload.ReadByte()
+	carUpdate.Kmh, _ = readUint16(payload)
+	carUpdate.Position, _ = readUint16(payload)
+	carUpdate.CupPosition, _ = readUint16(payload)
+	carUpdate.TrackPosition, _ = readUint16(payload)
+	carUpdate.TrackRelativePosition, _ = readFloat32(payload)
+	carUpdate.Laps, _ = readUint16(payload)
+	carUpdate.Delta, _ = readInt32(payload)
+	updateLap(payload, carUpdate.BestSessionLap)
+	updateLap(payload, carUpdate.LastLap)
+	updateLap(payload, carUpdate.CurrentLap)
+
+	return carUpdate
 }
 
 func updateLap(payload *bytes.Buffer, lap *LapInfo) {
