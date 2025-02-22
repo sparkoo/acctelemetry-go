@@ -101,7 +101,7 @@ func (telemetry *AccTelemetry) connect() error {
 				}
 			} else {
 				if err := telemetry.readMessage(payload); err != nil {
-					fmt.Printf("failed to read the message: %s", err)
+					fmt.Printf("failed to read the message: %s\n", err)
 				}
 			}
 			time.Sleep(1 * time.Millisecond)
