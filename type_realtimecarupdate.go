@@ -1,6 +1,8 @@
 package acctelemetry
 
-import "bytes"
+import (
+	"bytes"
+)
 
 type RealtimeCarUpdate struct {
 	CarIndex              uint16
@@ -51,7 +53,6 @@ func updateRealtimeCarUpdate(payload *bytes.Buffer, toUpdate *RealtimeCarUpdate)
 	toUpdate.TrackRelativePosition, _ = readFloat32(payload)
 	toUpdate.Laps, _ = readUint16(payload)
 	toUpdate.Delta, _ = readInt32(payload)
-	toUpdate.Kmh, _ = readUint16(payload)
 	updateLap(payload, toUpdate.BestSessionLap)
 	updateLap(payload, toUpdate.LastLap)
 	updateLap(payload, toUpdate.CurrentLap)
