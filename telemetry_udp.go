@@ -190,8 +190,6 @@ func (t *AccTelemetry) createMessage(payload []byte) (*UdpMessage, error) {
 	switch messageType {
 	case REALTIME_CAR_UPDATE:
 		message.Message = updateRealtimeCarUpdate(buffer)
-		return message, nil
-	default:
-		return nil, fmt.Errorf("we don't currently support this type of message: '%d' => %+v", messageType, payload)
 	}
+	return message, nil
 }
