@@ -44,42 +44,9 @@ type connectionResult struct {
 }
 
 func (telemetry *AccTelemetry) connect() error {
-	connectMessage, err := telemetry.createConnectMessage()
-	if err != nil {
-		return fmt.Errorf("failed to craete connect message: %w", err)
+	if handshakeErr := telemetry.handshake(); handshakeErr != nil {
+		return fmt.Errorf("failed to connect to ACC: %w", handshakeErr)
 	}
-
-	// send connection request
-	_, sendErr := telemetry.udpConnection.Write(connectMessage)
-	if sendErr != nil {
-		return fmt.Errorf("failed to send connection message: %w", sendErr)
-	}
-
-	// give lot of time for connection
-	telemetry.udpConnection.SetReadDeadline(time.Now().Add(15 * time.Second))
-	inBuffer := make([]byte, 128)
-	_, _, err = telemetry.udpConnection.ReadFromUDP(inBuffer)
-	if err != nil {
-		telemetry.Close()
-		if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
-			return fmt.Errorf("UDP read timeout, ACC probably not running: %w", netErr)
-		} else {
-			return fmt.Errorf("UDP read failed: %w", err)
-		}
-	} else {
-		fmt.Println("UDP Connected")
-		telemetry.realtimeCarUpdate = &RealtimeCarUpdate{
-			BestSessionLap: &LapInfo{Splits: [8]int32{}},
-			LastLap:        &LapInfo{Splits: [8]int32{}},
-			CurrentLap:     &LapInfo{Splits: [8]int32{}},
-		}
-	}
-
-	connectionResult, err := readConnectionResult(bytes.NewBuffer(inBuffer))
-	if err != nil {
-		return fmt.Errorf("failed to read connection response: %w", err)
-	}
-	fmt.Printf("Connected to ACC, listen for messages: '%+v'", connectionResult)
 
 	go func() {
 		payload := make([]byte, 128)
@@ -98,6 +65,7 @@ func (telemetry *AccTelemetry) connect() error {
 				} else {
 					fmt.Printf("UDP read failed: %s", err)
 				}
+				telemetry.Close()
 			} else {
 				if err := telemetry.readMessage(payload); err != nil {
 					fmt.Printf("failed to read the message: %s\n", err)
@@ -106,6 +74,47 @@ func (telemetry *AccTelemetry) connect() error {
 			time.Sleep(1 * time.Millisecond)
 		}
 	}()
+
+	return nil
+}
+
+func (t *AccTelemetry) handshake() error {
+	connectMessage, err := t.createConnectMessage()
+	if err != nil {
+		return fmt.Errorf("failed to craete connect message: %w", err)
+	}
+
+	// send connection request
+	_, sendErr := t.udpConnection.Write(connectMessage)
+	if sendErr != nil {
+		return fmt.Errorf("failed to send connection message: %w", sendErr)
+	}
+
+	// give lot of time for connection
+	t.udpConnection.SetReadDeadline(time.Now().Add(15 * time.Second))
+	inBuffer := make([]byte, 128)
+	_, _, err = t.udpConnection.ReadFromUDP(inBuffer)
+	if err != nil {
+		t.Close()
+		if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+			return fmt.Errorf("UDP read timeout, ACC probably not running: %w", netErr)
+		} else {
+			return fmt.Errorf("UDP read failed: %w", err)
+		}
+	}
+
+	connectionResult, err := readConnectionResult(bytes.NewBuffer(inBuffer))
+	if err != nil {
+		return fmt.Errorf("failed to read connection response: %w", err)
+	}
+
+	fmt.Printf("Connected to ACC, listen for messages: '%+v'", connectionResult)
+
+	t.realtimeCarUpdate = &RealtimeCarUpdate{
+		BestSessionLap: &LapInfo{Splits: [8]int32{}},
+		LastLap:        &LapInfo{Splits: [8]int32{}},
+		CurrentLap:     &LapInfo{Splits: [8]int32{}},
+	}
 
 	return nil
 }
