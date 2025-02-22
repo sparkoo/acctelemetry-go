@@ -9,7 +9,7 @@ import (
 )
 
 func TestTelemetry(t *testing.T) {
-	telemetry := acctelemetry.New()
+	telemetry := acctelemetry.New(acctelemetry.DefaultConfig())
 	err := telemetry.Connect()
 	if err != nil {
 		t.Error(fmt.Errorf("unable to connect to ACC: %w", err))
@@ -24,6 +24,14 @@ func TestTelemetry(t *testing.T) {
 	fmt.Printf("Static: %+v\n\n", telemetry.StaticPointer())
 	fmt.Printf("Graphics: %+v\n\n", telemetry.GraphicsPointer())
 	fmt.Printf("Physics: %+v\n\n", telemetry.PhysicsPointer())
+}
+
+func TestUdp(t *testing.T) {
+	telemetry := acctelemetry.New(acctelemetry.DefaultConfig())
+	if err := telemetry.Connect(); err != nil {
+		fmt.Printf("%+v", err)
+	}
+	t.Fail()
 }
 
 func convertToString(chars []uint16) string {

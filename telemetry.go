@@ -2,6 +2,7 @@ package acctelemetry
 
 import (
 	"fmt"
+	"net"
 	"unsafe"
 )
 
@@ -9,10 +10,32 @@ const STATIC_FILE_MMAP = "Local\\acpmf_static"
 const PHYSICS_FILE_MMAP = "Local\\acpmf_physics"
 const GRAPHIS_FILE_MMAP = "Local\\acpmf_graphics"
 
-type AccTelemetry struct {
+type AccTelemetryConfig struct {
+	UdpIpPort                   string
+	UdpConnectionPassword       string
+	UdpCommandPassword          string
+	UdpDisplayName              string
+	UdpRealtimeUpdateIntervalMS int32
+}
+
+func DefaultConfig() *AccTelemetryConfig {
+	return &AccTelemetryConfig{
+		UdpIpPort:                   "127.0.0.1:9000",
+		UdpConnectionPassword:       "asd",
+		UdpCommandPassword:          "",
+		UdpDisplayName:              "RaceMate",
+		UdpRealtimeUpdateIntervalMS: 100,
+	}
+}
+
+type accTelemetry struct {
+	config *AccTelemetryConfig
+
 	staticData   *accDataHolder[AccStatic]
 	physicsData  *accDataHolder[AccPhysics]
 	graphicsData *accDataHolder[AccGraphic]
+
+	udpConnection *net.UDPConn
 }
 
 type accDataHolder[T AccGraphic | AccPhysics | AccStatic] struct {
@@ -29,7 +52,12 @@ func (d *accDataHolder[T]) Close() error {
 	return nil
 }
 
-func (t *AccTelemetry) Connect() error {
+func (t *accTelemetry) Connect() error {
+	udpErr := t.connectUdp()
+	if udpErr != nil {
+		return fmt.Errorf("failed UDP connection: %w", udpErr)
+	}
+
 	var accStatic AccStatic
 	staticMMap, err := mapFile(STATIC_FILE_MMAP, unsafe.Sizeof(accStatic))
 	if err != nil {
@@ -63,12 +91,32 @@ func (t *AccTelemetry) Connect() error {
 	return nil
 }
 
-func New() *AccTelemetry {
-	return &AccTelemetry{}
+func (telemetry *accTelemetry) connectUdp() error {
+	udpAddress, err := net.ResolveUDPAddr("udp", telemetry.config.UdpIpPort)
+	if err != nil {
+		return fmt.Errorf("failed to resolve UDP address '%s': %w", telemetry.config.UdpIpPort, err)
+	}
+
+	udpConnection, err := net.DialUDP("udp", nil, udpAddress)
+	if err != nil {
+		return fmt.Errorf("failed to dial UDP: %w", err)
+	}
+	telemetry.udpConnection = udpConnection
+
+	if err := telemetry.connect(); err != nil {
+		return fmt.Errorf("failed to connect to UDP: %w", err)
+	}
+	return nil
+}
+
+func New(config *AccTelemetryConfig) *accTelemetry {
+	return &accTelemetry{
+		config: config,
+	}
 }
 
 // this returns direct pointer to the memory so underlying struct will change over time
-func (t *AccTelemetry) GraphicsPointer() *AccGraphic {
+func (t *accTelemetry) GraphicsPointer() *AccGraphic {
 	if t.graphicsData != nil {
 		return t.graphicsData.data
 	}
@@ -76,7 +124,7 @@ func (t *AccTelemetry) GraphicsPointer() *AccGraphic {
 }
 
 // this returns direct pointer to the memory so underlying struct will change over time
-func (t *AccTelemetry) StaticPointer() *AccStatic {
+func (t *accTelemetry) StaticPointer() *AccStatic {
 	if t.staticData != nil {
 		return t.staticData.data
 	}
@@ -84,16 +132,34 @@ func (t *AccTelemetry) StaticPointer() *AccStatic {
 }
 
 // this returns direct pointer to the memory so underlying struct will change over time
-func (t *AccTelemetry) PhysicsPointer() *AccPhysics {
+func (t *accTelemetry) PhysicsPointer() *AccPhysics {
 	if t.physicsData != nil {
 		return t.physicsData.data
 	}
 	return nil
 }
 
-func (t *AccTelemetry) Close() error {
-	t.graphicsData.Close()
-	t.staticData.Close()
-	t.physicsData.Close()
+// reads from UDP
+func (t *accTelemetry) RealtimeUpdate() *RealtimeUpdate {
+
+}
+
+func (t *accTelemetry) Close() error {
+	if t.graphicsData != nil {
+		t.graphicsData.Close()
+	}
+
+	if t.staticData != nil {
+		t.staticData.Close()
+	}
+
+	if t.physicsData != nil {
+		t.physicsData.Close()
+	}
+
+	if t.udpConnection != nil {
+		t.udpConnection.Close()
+	}
+
 	return nil
 }
