@@ -90,8 +90,7 @@ func (telemetry *AccTelemetry) connect() error {
 				payload[i] = 0
 			}
 
-			// we need quick response
-			telemetry.udpConnection.SetReadDeadline(time.Now().Add(1 * time.Millisecond))
+			telemetry.udpConnection.SetReadDeadline(time.Now().Add(10 * time.Millisecond))
 			_, _, err := telemetry.udpConnection.ReadFromUDP(payload)
 			if err != nil {
 				if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
