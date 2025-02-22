@@ -13,7 +13,7 @@ func TestTelemetry(t *testing.T) {
 	defer telemetry.Close()
 	err := telemetry.Connect()
 	if err != nil {
-		t.Error(fmt.Errorf("unable to connect to ACC: %w", err))
+		t.Error(fmt.Errorf("unable to connect to ACC: %w\n", err))
 	}
 
 	fmt.Printf("Static: %+v\n\n", telemetry.StaticPointer())
@@ -28,10 +28,10 @@ func TestTelemetry(t *testing.T) {
 }
 
 func TestUdp(t *testing.T) {
-	telemetry := acctelemetry.New(acctelemetry.DefaultConfig())
+	telemetry := acctelemetry.New(acctelemetry.DefaultUdpConfig())
 	defer telemetry.Close()
 	if err := telemetry.Connect(); err != nil {
-		fmt.Printf("%+v", err)
+		fmt.Printf("%+v\n", err)
 	}
 	t.Fail()
 }

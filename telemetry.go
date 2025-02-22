@@ -3,6 +3,7 @@ package acctelemetry
 import (
 	"fmt"
 	"net"
+	"time"
 	"unsafe"
 )
 
@@ -11,20 +12,33 @@ const PHYSICS_FILE_MMAP = "Local\\acpmf_physics"
 const GRAPHIS_FILE_MMAP = "Local\\acpmf_graphics"
 
 type AccTelemetryConfig struct {
+	EnableUdp                   bool
 	UdpIpPort                   string
 	UdpConnectionPassword       string
-	UdpCommandPassword          string
-	UdpDisplayName              string
-	UdpRealtimeUpdateIntervalMS int32
+	UdpPollRate                 time.Duration
+	udpCommandPassword          string
+	udpDisplayName              string
+	udpRealtimeUpdateIntervalMS int32
 }
 
 func DefaultConfig() *AccTelemetryConfig {
 	return &AccTelemetryConfig{
-		UdpIpPort:                   "127.0.0.1:9000",
-		UdpConnectionPassword:       "asd",
-		UdpCommandPassword:          "",
-		UdpDisplayName:              "RaceMate",
-		UdpRealtimeUpdateIntervalMS: 100,
+		EnableUdp: false,
+	}
+}
+
+func DefaultUdpConfig() *AccTelemetryConfig {
+	return UdpConfig("127.0.0.1:9000", "asd")
+}
+
+func UdpConfig(ipPort string, password string) *AccTelemetryConfig {
+	return &AccTelemetryConfig{
+		EnableUdp:                   true,
+		UdpIpPort:                   ipPort,
+		UdpConnectionPassword:       password,
+		udpCommandPassword:          "",
+		udpDisplayName:              "RaceMate",
+		udpRealtimeUpdateIntervalMS: 100,
 	}
 }
 
@@ -36,6 +50,9 @@ type accTelemetry struct {
 	graphicsData *accDataHolder[AccGraphic]
 
 	udpConnection *net.UDPConn
+
+	realtimeCarUpdate *RealtimeCarUpdate
+	realtimeUpdate    *RealtimeUpdate
 }
 
 type accDataHolder[T AccGraphic | AccPhysics | AccStatic] struct {
@@ -53,9 +70,11 @@ func (d *accDataHolder[T]) Close() error {
 }
 
 func (t *accTelemetry) Connect() error {
-	udpErr := t.connectUdp()
-	if udpErr != nil {
-		return fmt.Errorf("failed UDP connection: %w", udpErr)
+	if t.config.EnableUdp {
+		udpErr := t.connectUdp()
+		if udpErr != nil {
+			return fmt.Errorf("failed UDP connection: %w", udpErr)
+		}
 	}
 
 	var accStatic AccStatic
@@ -140,8 +159,17 @@ func (t *accTelemetry) PhysicsPointer() *AccPhysics {
 }
 
 // reads from UDP
+// returns current state of RealtimeUpdate
+// by it's async nature, it's just best effort these data are latest and correct
 func (t *accTelemetry) RealtimeUpdate() *RealtimeUpdate {
-	return nil
+	return t.realtimeUpdate
+}
+
+// reads from UDP
+// returns current state of RealtimeCarUpdate
+// by it's async nature, it's just best effort these data are latest and correct
+func (t *accTelemetry) RealtimeCarUpdate() *RealtimeCarUpdate {
+	return t.realtimeCarUpdate
 }
 
 func (t *accTelemetry) Close() error {
@@ -158,8 +186,13 @@ func (t *accTelemetry) Close() error {
 	}
 
 	if t.udpConnection != nil {
-		t.udpConnection.Write([]byte{UNREGISTER_COMMAND_APPLICATION})
-		t.udpConnection.Close()
+		_, err := t.udpConnection.Write([]byte{UNREGISTER_COMMAND_APPLICATION})
+		if err != nil {
+			fmt.Println("failed to send unregister: ", err)
+		}
+		if err := t.udpConnection.Close(); err != nil {
+			fmt.Println("failed to close the connection: ", err)
+		}
 	}
 
 	return nil
