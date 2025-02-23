@@ -61,9 +61,9 @@ func (t *AccTelemetry) connect() error {
 			if err == nil {
 				realtimeCarUpdate, createMsgErr := t.createMessage(payload)
 				if createMsgErr != nil {
-					fmt.Printf("failed to create realtime car update message: %s", createMsgErr)
+					fmt.Printf("failed to create realtime car update message: %s\n", createMsgErr)
 				}
-				t.RealtimeCarUpdate = realtimeCarUpdate
+				t.realtimeCarUpdate = realtimeCarUpdate
 			} else {
 				if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
 					fmt.Printf("UDP read timeout, ACC may not be running: %s\n", netErr)
@@ -108,7 +108,7 @@ func (t *AccTelemetry) handshake() error {
 		return fmt.Errorf("failed to read connection response: %w", err)
 	}
 
-	fmt.Printf("Connected to ACC, listen for messages: '%+v'", connectionResult)
+	fmt.Printf("Connected to ACC, listen for messages: '%+v'\n", connectionResult)
 
 	return nil
 }

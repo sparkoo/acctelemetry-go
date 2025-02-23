@@ -3,7 +3,6 @@ package acctelemetry
 import (
 	"fmt"
 	"net"
-	"time"
 	"unsafe"
 )
 
@@ -11,39 +10,8 @@ const STATIC_FILE_MMAP = "Local\\acpmf_static"
 const PHYSICS_FILE_MMAP = "Local\\acpmf_physics"
 const GRAPHIS_FILE_MMAP = "Local\\acpmf_graphics"
 
-type AccTelemetryConfig struct {
-	EnableUdp                   bool
-	UdpIpPort                   string
-	UdpConnectionPassword       string
-	UdpPollRate                 time.Duration
-	udpCommandPassword          string
-	udpDisplayName              string
-	udpRealtimeUpdateIntervalMS int32
-}
-
-func DefaultConfig() *AccTelemetryConfig {
-	return &AccTelemetryConfig{
-		EnableUdp: false,
-	}
-}
-
-func DefaultUdpConfig() *AccTelemetryConfig {
-	return UdpConfig("127.0.0.1:9000", "asd")
-}
-
-func UdpConfig(ipPort string, password string) *AccTelemetryConfig {
-	return &AccTelemetryConfig{
-		EnableUdp:                   true,
-		UdpIpPort:                   ipPort,
-		UdpConnectionPassword:       password,
-		udpCommandPassword:          "",
-		udpDisplayName:              "RaceMate",
-		udpRealtimeUpdateIntervalMS: 100,
-	}
-}
-
 type AccTelemetry struct {
-	config *AccTelemetryConfig
+	config *accTelemetryConfig
 
 	staticData   *accDataHolder[AccStatic]
 	physicsData  *accDataHolder[AccPhysics]
@@ -51,7 +19,7 @@ type AccTelemetry struct {
 
 	udpConnection *net.UDPConn
 
-	RealtimeCarUpdate *RealtimeCarUpdate
+	realtimeCarUpdate *RealtimeCarUpdate
 }
 
 type accDataHolder[T AccGraphic | AccPhysics | AccStatic] struct {
@@ -127,7 +95,7 @@ func (telemetry *AccTelemetry) connectUdp() error {
 	return nil
 }
 
-func New(config *AccTelemetryConfig) *AccTelemetry {
+func New(config *accTelemetryConfig) *AccTelemetry {
 	return &AccTelemetry{
 		config: config,
 	}
@@ -158,8 +126,8 @@ func (t *AccTelemetry) PhysicsPointer() *AccPhysics {
 }
 
 // returns what is current RealtimeCarUpdate
-func (t *AccTelemetry) ReadUdpMessage() *RealtimeCarUpdate {
-	return t.RealtimeCarUpdate
+func (t *AccTelemetry) RealtimeCarUpdate() *RealtimeCarUpdate {
+	return t.realtimeCarUpdate
 }
 
 func (t *AccTelemetry) Close() error {
