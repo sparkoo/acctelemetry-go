@@ -66,9 +66,9 @@ func (t *AccTelemetry) connect() error {
 				t.RealtimeCarUpdate = realtimeCarUpdate
 			} else {
 				if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
-					fmt.Printf("UDP read timeout, ACC may not be running: %s", netErr)
+					fmt.Printf("UDP read timeout, ACC may not be running: %s\n", netErr)
 				} else {
-					fmt.Printf("UDP read failed: %s", err)
+					fmt.Printf("UDP read failed: %s\n", err)
 				}
 			}
 			time.Sleep(10 * time.Millisecond)
